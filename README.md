@@ -1,182 +1,132 @@
-<p align="center">
-  <img src="res/logo-header.svg" alt="RustDesk - Your remote desktop"><br>
-  <a href="#raw-steps-to-build">Build</a> •
-  <a href="#how-to-build-with-docker">Docker</a> •
-  <a href="#file-structure">Structure</a> •
-  <a href="#snapshot">Snapshot</a><br>
-  [<a href="docs/README-UA.md">Українська</a>] | [<a href="docs/README-CS.md">česky</a>] | [<a href="docs/README-ZH.md">中文</a>] | [<a href="docs/README-HU.md">Magyar</a>] | [<a href="docs/README-ES.md">Español</a>] | [<a href="docs/README-FA.md">فارسی</a>] | [<a href="docs/README-FR.md">Français</a>] | [<a href="docs/README-DE.md">Deutsch</a>] | [<a href="docs/README-PL.md">Polski</a>] | [<a href="docs/README-ID.md">Indonesian</a>] | [<a href="docs/README-FI.md">Suomi</a>] | [<a href="docs/README-ML.md">മലയാളം</a>] | [<a href="docs/README-JP.md">日本語</a>] | [<a href="docs/README-NL.md">Nederlands</a>] | [<a href="docs/README-IT.md">Italiano</a>] | [<a href="docs/README-RU.md">Русский</a>] | [<a href="docs/README-PTBR.md">Português (Brasil)</a>] | [<a href="docs/README-EO.md">Esperanto</a>] | [<a href="docs/README-KR.md">한국어</a>] | [<a href="docs/README-AR.md">العربي</a>] | [<a href="docs/README-VN.md">Tiếng Việt</a>] | [<a href="docs/README-DA.md">Dansk</a>] | [<a href="docs/README-GR.md">Ελληνικά</a>] | [<a href="docs/README-TR.md">Türkçe</a>] | [<a href="docs/README-NO.md">Norsk</a>] | [<a href="docs/README-RO.md">Română</a>]<br>
-  <b>We need your help to translate this README, <a href="https://github.com/rustdesk/rustdesk/tree/master/src/lang">RustDesk UI</a> and <a href="https://github.com/rustdesk/doc.rustdesk.com">RustDesk Doc</a> to your native language</b>
-</p>
+# HarmonyDesk
 
-> [!Caution]
-> **Misuse Disclaimer:** <br>
-> The developers of RustDesk do not condone or support any unethical or illegal use of this software. Misuse, such as unauthorized access, control or invasion of privacy, is strictly against our guidelines. The authors are not responsible for any misuse of the application.
+HarmonyDesk is a HarmonyOS-oriented Android compatibility build of RustDesk,
+focused on using a phone as a remote-control client. It is based on the
+upstream RustDesk Flutter/Android application, with branding, Android manifest
+profiles, and build automation adjusted for stricter HarmonyOS/Huawei package
+installers.
 
+The recommended build profile is `client-only`: the phone can control remote
+devices, but the phone is not exposed as a remotely controlled host.
 
-Chat with us: [Discord](https://discord.gg/nDceKgxnkV) | [Twitter](https://twitter.com/rustdesk) | [Reddit](https://www.reddit.com/r/rustdesk) | [YouTube](https://www.youtube.com/@rustdesk)
+## Status
 
-[![RustDesk Server Pro](https://img.shields.io/badge/RustDesk%20Server%20Pro-Advanced%20Features-blue)](https://rustdesk.com/pricing.html)
+- Base project: RustDesk, commit `84af60c`
+- Target artifact: arm64 Android APK for HarmonyOS Android compatibility mode
+- Recommended profile: `HARMONY_PROFILE=client-only`
+- App label: `HarmonyDesk`
+- Default client-only package ID: `com.catbaba.harmonydesk.client`
+- Native HarmonyOS NEXT HAP: not supported by this branch
 
-Yet another remote desktop solution, written in Rust. Works out of the box with no configuration required. You have full control of your data, with no concerns about security. You can use our rendezvous/relay server, [set up your own](https://rustdesk.com/server), or [write your own rendezvous/relay server](https://github.com/rustdesk/rustdesk-server-demo).
+## Why Client-Only
 
-![image](https://user-images.githubusercontent.com/71636191/171661982-430285f0-2e12-4b1d-9957-4a58e375304d.png)
+Some HarmonyOS/Huawei installers block APKs that look like mobile remote-control
+hosts. The client-only profile removes host-side capabilities that are not
+needed when the phone is only used to control another computer or device.
 
-RustDesk welcomes contribution from everyone. See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for help getting started.
+The client-only APK keeps only:
 
-[**FAQ**](https://github.com/rustdesk/rustdesk/wiki/FAQ)
+- `android.permission.INTERNET`
+- `android.permission.ACCESS_NETWORK_STATE`
+- the app's generated dynamic receiver permission
 
-[**BINARY DOWNLOAD**](https://github.com/rustdesk/rustdesk/releases)
+It removes Android declarations for:
 
-[**NIGHTLY BUILD**](https://github.com/rustdesk/rustdesk/releases/tag/nightly)
+- AccessibilityService / remote input service
+- screen capture / MediaProjection host service
+- foreground host service and wake lock
+- floating window service
+- boot autostart receiver
+- camera, microphone, notification, and storage permissions
+- RustDesk deep-link scheme
 
-[<img src="https://f-droid.org/badge/get-it-on.png"
-    alt="Get it on F-Droid"
-    height="80">](https://f-droid.org/en/packages/com.carriez.flutter_hbb)
-[<img src="https://flathub.org/api/badge?svg&locale=en"
-    alt="Get it on Flathub"
-    height="80">](https://flathub.org/apps/com.rustdesk.RustDesk)
+## Build
 
-## Dependencies
+Prepare the toolchain first. The known-good local build used:
 
-Desktop versions use Flutter or Sciter (deprecated) for GUI, this tutorial is for Sciter only, since it is easier and more friendly to start. Check out our [CI](https://github.com/rustdesk/rustdesk/blob/master/.github/workflows/flutter-build.yml) for building Flutter version.
+- Rust 1.75.0 with `aarch64-linux-android`
+- Flutter 3.24.5
+- Android SDK build-tools 34.0.0
+- Android NDK 28.2.13676358
+- `cargo-ndk`, `flutter_rust_bridge_codegen`, and vcpkg dependencies
 
-Please download Sciter dynamic library yourself.
+Build the recommended client-only APK:
 
-[Windows](https://raw.githubusercontent.com/c-smile/sciter-sdk/master/bin.win/x64/sciter.dll) |
-[Linux](https://raw.githubusercontent.com/c-smile/sciter-sdk/master/bin.lnx/x64/libsciter-gtk.so) |
-[macOS](https://raw.githubusercontent.com/c-smile/sciter-sdk/master/bin.osx/libsciter.dylib)
+```bash
+export ANDROID_SDK_ROOT="$HOME/android-sdk"
+export ANDROID_NDK_HOME="$ANDROID_SDK_ROOT/ndk/28.2.13676358"
+export VCPKG_ROOT="$HOME/vcpkg"
 
-## Raw Steps to build
-
-- Prepare your Rust development env and C++ build env
-
-- Install [vcpkg](https://github.com/microsoft/vcpkg), and set `VCPKG_ROOT` env variable correctly
-
-  - Windows: vcpkg install libvpx:x64-windows-static libyuv:x64-windows-static opus:x64-windows-static aom:x64-windows-static
-  - Linux/macOS: vcpkg install libvpx libyuv opus aom
-
-- run `cargo run`
-
-## [Build](https://rustdesk.com/docs/en/dev/build/)
-
-## How to Build on Linux
-
-### Ubuntu 18 (Debian 10)
-
-```sh
-sudo apt install -y zip g++ gcc git curl wget nasm yasm libgtk-3-dev clang libxcb-randr0-dev libxdo-dev \
-        libxfixes-dev libxcb-shape0-dev libxcb-xfixes0-dev libasound2-dev libpulse-dev cmake make \
-        libclang-dev ninja-build libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libpam0g-dev
+HARMONY_PROFILE=client-only flutter/build_harmony_android.sh
 ```
 
-### openSUSE Tumbleweed
+The output is written to:
 
-```sh
-sudo zypper install gcc-c++ git curl wget nasm yasm gcc gtk3-devel clang libxcb-devel libXfixes-devel cmake alsa-lib-devel gstreamer-devel gstreamer-plugins-base-devel xdotool-devel pam-devel
+```text
+rustdesk-1.4.7-harmonyClientOnly-arm64-v8a.apk
 ```
 
-### Fedora 28 (CentOS 8)
+To copy the APK to an external output directory:
 
-```sh
-sudo yum -y install gcc-c++ git curl wget nasm yasm gcc gtk3-devel clang libxcb-devel libxdo-devel libXfixes-devel pulseaudio-libs-devel cmake alsa-lib-devel gstreamer1-devel gstreamer1-plugins-base-devel pam-devel
+```bash
+export OUTPUT_DIR=/path/to/output
+HARMONY_PROFILE=client-only flutter/build_harmony_android.sh
 ```
 
-### Arch (Manjaro)
+## Build Profiles
 
-```sh
-sudo pacman -Syu --needed unzip git cmake gcc curl wget yasm nasm zip make pkg-config clang gtk3 xdotool libxcb libxfixes alsa-lib pipewire
+`flutter/build_harmony_android.sh` supports three Harmony profiles:
+
+| Profile | Output flavor | Purpose |
+| --- | --- | --- |
+| `client-only` | `harmonyClientOnly` | Recommended. Phone controls remote devices only. Removes host-side services and sensitive permissions. |
+| `install-safe` | `harmonyInstallSafe` | Transitional installability test. Removes most sensitive declarations but still leaves the main host service class declared. |
+| `compat` | `harmonyCompat` | Closest to upstream Android RustDesk. Keeps AccessibilityService and MediaProjection declarations and may be blocked by strict installers. |
+
+See [docs/harmonyos-next-build.md](docs/harmonyos-next-build.md) for the
+complete profile details.
+
+## Validation
+
+Useful checks after building:
+
+```bash
+APK=rustdesk-1.4.7-harmonyClientOnly-arm64-v8a.apk
+
+$ANDROID_SDK_ROOT/build-tools/34.0.0/aapt dump badging "$APK"
+$ANDROID_SDK_ROOT/build-tools/34.0.0/aapt dump permissions "$APK"
+$ANDROID_SDK_ROOT/build-tools/34.0.0/apksigner verify --verbose --print-certs "$APK"
 ```
 
-### Install vcpkg
+For the client-only build, `aapt` should not show declarations such as
+`AccessibilityService`, `MainService`, `FOREGROUND_SERVICE`, `WAKE_LOCK`,
+`RECORD_AUDIO`, `CAMERA`, `POST_NOTIFICATIONS`, `SYSTEM_ALERT_WINDOW`, or
+`RECEIVE_BOOT_COMPLETED`.
 
-```sh
-git clone https://github.com/microsoft/vcpkg
-cd vcpkg
-git checkout 2023.04.15
-cd ..
-vcpkg/bootstrap-vcpkg.sh
-export VCPKG_ROOT=$HOME/vcpkg
-vcpkg/vcpkg install libvpx libyuv opus aom
-```
+## Limitations
 
-### Fix libvpx (For Fedora)
+This branch still builds an Android APK. It is not a native HarmonyOS NEXT
+application and it does not produce a HAP package.
 
-```sh
-cd vcpkg/buildtrees/libvpx/src
-cd *
-./configure
-sed -i 's/CFLAGS+=-I/CFLAGS+=-fPIC -I/g' Makefile
-sed -i 's/CXXFLAGS+=-I/CXXFLAGS+=-fPIC -I/g' Makefile
-make
-cp libvpx.a $HOME/vcpkg/installed/x64-linux/lib/
-cd
-```
+The client-only profile intentionally disables or removes mobile host features:
 
-### Build
+- this phone cannot be controlled remotely
+- this phone cannot share its screen as a host
+- Android accessibility-based input is unavailable
+- camera scanning and microphone recording are unavailable
+- host notifications and foreground host service behavior are unavailable
 
-```sh
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-source $HOME/.cargo/env
-git clone --recurse-submodules https://github.com/rustdesk/rustdesk
-cd rustdesk
-mkdir -p target/debug
-wget https://raw.githubusercontent.com/c-smile/sciter-sdk/master/bin.lnx/x64/libsciter-gtk.so
-mv libsciter-gtk.so target/debug
-VCPKG_ROOT=$HOME/vcpkg cargo run
-```
+For native HarmonyOS NEXT support, a separate OpenHarmony/HarmonyOS app module
+is required, including HAP packaging, Harmony permissions, and replacements for
+Android-specific APIs.
 
-## How to build with Docker
+## Upstream
 
-Begin by cloning the repository and building the Docker container:
+HarmonyDesk is derived from RustDesk. RustDesk is a remote desktop solution
+written in Rust with Flutter and native platform integrations.
 
-```sh
-git clone https://github.com/rustdesk/rustdesk
-cd rustdesk
-git submodule update --init --recursive
-docker build -t "rustdesk-builder" .
-```
+Upstream project: <https://github.com/rustdesk/rustdesk>
 
-Then, each time you need to build the application, run the following command:
-
-```sh
-docker run --rm -it -v $PWD:/home/user/rustdesk -v rustdesk-git-cache:/home/user/.cargo/git -v rustdesk-registry-cache:/home/user/.cargo/registry -e PUID="$(id -u)" -e PGID="$(id -g)" rustdesk-builder
-```
-
-Note that the first build may take longer before dependencies are cached, subsequent builds will be faster. Additionally, if you need to specify different arguments to the build command, you may do so at the end of the command in the `<OPTIONAL-ARGS>` position. For instance, if you wanted to build an optimized release version, you would run the command above followed by `--release`. The resulting executable will be available in the target folder on your system, and can be run with:
-
-```sh
-target/debug/rustdesk
-```
-
-Or, if you're running a release executable:
-
-```sh
-target/release/rustdesk
-```
-
-Please ensure that you run these commands from the root of the RustDesk repository, or the application may not find the required resources. Also note that other cargo subcommands such as `install` or `run` are not currently supported via this method as they would install or run the program inside the container instead of the host.
-
-## File Structure
-
-- **[libs/hbb_common](https://github.com/rustdesk/rustdesk/tree/master/libs/hbb_common)**: video codec, config, tcp/udp wrapper, protobuf, fs functions for file transfer, and some other utility functions
-- **[libs/scrap](https://github.com/rustdesk/rustdesk/tree/master/libs/scrap)**: screen capture
-- **[libs/enigo](https://github.com/rustdesk/rustdesk/tree/master/libs/enigo)**: platform specific keyboard/mouse control
-- **[libs/clipboard](https://github.com/rustdesk/rustdesk/tree/master/libs/clipboard)**: file copy and paste implementation for Windows, Linux, macOS.
-- **[src/ui](https://github.com/rustdesk/rustdesk/tree/master/src/ui)**: obsolete Sciter UI (deprecated)
-- **[src/server](https://github.com/rustdesk/rustdesk/tree/master/src/server)**: audio/clipboard/input/video services, and network connections
-- **[src/client.rs](https://github.com/rustdesk/rustdesk/tree/master/src/client.rs)**: start a peer connection
-- **[src/rendezvous_mediator.rs](https://github.com/rustdesk/rustdesk/tree/master/src/rendezvous_mediator.rs)**: Communicate with [rustdesk-server](https://github.com/rustdesk/rustdesk-server), wait for remote direct (TCP hole punching) or relayed connection
-- **[src/platform](https://github.com/rustdesk/rustdesk/tree/master/src/platform)**: platform specific code
-- **[flutter](https://github.com/rustdesk/rustdesk/tree/master/flutter)**: Flutter code for desktop and mobile
-- **[flutter/web/js](https://github.com/rustdesk/rustdesk/tree/master/flutter/web/v1/js)**: JavaScript for Flutter web client
-
-## Screenshots
-
-![Connection Manager](https://github.com/rustdesk/rustdesk/assets/28412477/db82d4e7-c4bc-4823-8e6f-6af7eadf7651)
-
-![Connected to a Windows PC](https://github.com/rustdesk/rustdesk/assets/28412477/9baa91e9-3362-4d06-aa1a-7518edcbd7ea)
-
-![File Transfer](https://github.com/rustdesk/rustdesk/assets/28412477/39511ad3-aa9a-4f8c-8947-1cce286a46ad)
-
-![TCP Tunneling](https://github.com/rustdesk/rustdesk/assets/28412477/78e8708f-e87e-4570-8373-1360033ea6c5)
-
+Please respect RustDesk's license and security expectations. Do not use this
+software for unauthorized access or activity that violates privacy, policy, or
+law.
