@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- A stricter install-focused HarmonyOS compatibility overlay.
+         This removes declarations often classified as remote-control risk
+         signals by OEM installers. It is intended to test installability, not
+         to preserve full host-side RustDesk functionality. -->
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.SYSTEM_ALERT_WINDOW"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.RECEIVE_BOOT_COMPLETED"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.RECORD_AUDIO"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.CAMERA"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.POST_NOTIFICATIONS"
+        tools:node="remove" />
+
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        tools:node="remove" />
+
+    <queries tools:node="remove" />
+
+    <uses-feature
+        android:name="android.hardware.microphone"
+        tools:node="remove" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        tools:node="remove" />
+    <uses-feature
+        android:name="android.hardware.camera.front"
+        tools:node="remove" />
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        tools:node="remove" />
+    <uses-feature
+        android:name="android.hardware.camera.flash"
+        tools:node="remove" />
+
+    <application
+        android:requestLegacyExternalStorage="false"
+        tools:replace="android:requestLegacyExternalStorage">
+        <receiver
+            android:name=".BootReceiver"
+            tools:node="remove" />
+        <service
+            android:name=".FloatingWindowService"
+            tools:node="remove" />
+        <service
+            android:name=".InputService"
+            tools:node="remove" />
+        <service
+            android:name=".MainService"
+            tools:remove="android:foregroundServiceType" />
+        <activity android:name=".MainActivity">
+            <intent-filter tools:node="remove">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="rustdesk" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

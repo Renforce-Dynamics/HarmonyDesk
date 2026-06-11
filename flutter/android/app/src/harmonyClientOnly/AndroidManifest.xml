@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Client-only HarmonyOS compatibility overlay.
+         Keeps the phone as a controller/client and removes host-side remote
+         control, screen capture, startup, floating window, camera, microphone,
+         notification, and storage declarations. -->
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.SYSTEM_ALERT_WINDOW"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.RECEIVE_BOOT_COMPLETED"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.RECORD_AUDIO"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.CAMERA"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.POST_NOTIFICATIONS"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.FOREGROUND_SERVICE"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.WAKE_LOCK"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        tools:node="remove" />
+
+    <queries tools:node="remove" />
+
+    <uses-feature
+        android:name="android.hardware.microphone"
+        tools:node="remove" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        tools:node="remove" />
+    <uses-feature
+        android:name="android.hardware.camera.front"
+        tools:node="remove" />
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        tools:node="remove" />
+    <uses-feature
+        android:name="android.hardware.camera.flash"
+        tools:node="remove" />
+
+    <application
+        android:requestLegacyExternalStorage="false"
+        tools:replace="android:requestLegacyExternalStorage">
+        <receiver
+            android:name=".BootReceiver"
+            tools:node="remove" />
+        <service
+            android:name=".FloatingWindowService"
+            tools:node="remove" />
+        <service
+            android:name=".InputService"
+            tools:node="remove" />
+        <service
+            android:name=".MainService"
+            tools:node="remove" />
+        <activity
+            android:name=".PermissionRequestTransparentActivity"
+            tools:node="remove" />
+        <activity android:name=".MainActivity">
+            <intent-filter tools:node="remove">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="rustdesk" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.journeyapps.barcodescanner.CaptureActivity"
+            tools:node="remove" />
+    </application>
+</manifest>

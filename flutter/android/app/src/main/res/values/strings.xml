@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">HarmonyDesk</string>
+    <string name="accessibility_service_name">HarmonyDesk Input</string>
+    <string name="accessibility_service_description">Allow other devices to control your phone using virtual touch, when HarmonyDesk screen sharing is established</string>
+</resources>
