@@ -1,5 +1,7 @@
 # HarmonyDesk
 
+![HarmonyDesk black and gold cover](docs/assets/HarmonyDesk-cover-black-gold.png)
+
 HarmonyDesk is a HarmonyOS-oriented Android compatibility build of RustDesk,
 focused on using a phone as a remote-control client. It is based on the
 upstream RustDesk Flutter/Android application, with branding, Android manifest
